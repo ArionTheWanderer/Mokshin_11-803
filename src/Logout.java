@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class Logout extends HttpServlet {
+    private LLC llc;
 
     private static final String LEFT = "You have left your profile";
 
@@ -14,8 +15,8 @@ public class Logout extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getSession().invalidate();
-        request.getSession(true);
+        LLC llc = new LLC();
+        llc.logout(request, response);
         PrintWriter out = response.getWriter();
         out.print(LEFT);
     }

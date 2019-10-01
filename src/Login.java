@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 
 
 public class Login extends HttpServlet {
+    private LLC llc = new LLC();
 
     private static final String FORM = "<body>\n" + "<h1>Login</h1>" + "<br>" +
             "    <form action=\"/web_application_war_exploded/login\" method=\"post\">\n" +
@@ -26,58 +27,43 @@ public class Login extends HttpServlet {
 
     private static final String WRONG_DATA = "Wrong profile data";
 
-    private static final String ADMIN = "admin";
-
-    private static final String NAME = "name";
-
-    private static final String PASSWORD = "password";
-
     private static final String PROFILE = "/profile";
-
-    private static final String REMEMBER = "Remember_me";
-
-    private static final String TRUE = "true";
 
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession session = request.getSession(true);
+        PrintWriter out = response.getWriter();
+        /*HttpSession session = request.getSession(true);
         String name = request.getParameter(NAME);
         String password = request.getParameter(PASSWORD);
-        PrintWriter out = response.getWriter();
         if (ADMIN.equals(name) && ADMIN.equals(password)){
             session.setAttribute(NAME, name);
             session.setAttribute(PASSWORD, password);
             if(request.getParameter(REMEMBER) != null && request.getParameter(REMEMBER).equals(TRUE)) {
                 Cookie cookie = new Cookie(ADMIN, ADMIN);
-                cookie.setMaxAge(60*60*24*30);
+                cookie.setMaxAge(60);
                 response.addCookie(cookie);
             }
+            String path = request.getContextPath() + PROFILE;
+            response.sendRedirect(path);
+        } else out.print(WRONG_DATA);*/
+        if (llc.login(request, response)) {
             String path = request.getContextPath() + PROFILE;
             response.sendRedirect(path);
         } else out.print(WRONG_DATA);
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        LLC llc = new LLC();
         HttpSession session = request.getSession(false);
         PrintWriter out = response.getWriter();
-        if (session.getAttribute(NAME) != null && session.getAttribute(PASSWORD) != null && session.getAttribute(NAME).equals(ADMIN) && session.getAttribute(PASSWORD).equals(ADMIN)) {
+        boolean isCookies = llc.checkCookies(request);
+        if (llc.checkUser(session)) {
             String path = request.getContextPath() + PROFILE;
             response.sendRedirect(path);
+        } else if (isCookies) {
+            out.print(FORM2);
         } else {
-            String cookieValue = ADMIN;
-            Cookie[] cookies = request.getCookies();
-            boolean f = false;
-            if (cookies != null) {
-                for(Cookie c: cookies) {
-                    if(cookieValue.equals(c.getValue())) {
-                        f = true;
-                        break;
-                    }
-                }
-            }
-            if (f)
-                out.print(FORM2);
-            else out.print(FORM);
+            out.print(FORM);
         }
 
     }
